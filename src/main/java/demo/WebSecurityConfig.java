@@ -17,24 +17,38 @@ package demo;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 
 /**
  * @author Rob Winch
- *
  */
 @Configuration
+@EnableWebFluxSecurity
 public class WebSecurityConfig {
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        return http
+                .authorizeExchange()
+                .anyExchange().permitAll()
+                .and()
+                .csrf().csrfTokenRepository(new CookieServerCsrfTokenRepository())
+                .and()
+                .build();
+    }
 
-	@Bean
-	public static MapReactiveUserDetailsService userDetailsService() {
-		UserDetails user = User.withDefaultPasswordEncoder()
-			.username("user")
-				.password("password")
-				.roles("USER")
-				.build();
-		return new MapReactiveUserDetailsService(user);
-	}
+    @Bean
+    public static MapReactiveUserDetailsService userDetailsService() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build();
+        return new MapReactiveUserDetailsService(user);
+    }
 }
